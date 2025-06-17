@@ -1,64 +1,64 @@
-# 记账软件项目
+# Casho - Personal Finance Management
 
-一个现代化的前后端分离记账软件，使用 React + TypeScript 前端和 Django + GraphQL 后端。
+A modern full-stack personal finance management application built with React + TypeScript frontend and Django + GraphQL backend.
 
-## 技术栈
+## Tech Stack
 
-### 前端
+### Frontend
 - React 18 + TypeScript
-- Vite (构建工具)
-- React Router (路由)
-- Apollo Client (GraphQL 客户端)
-- Tailwind CSS (样式)
-- React Hook Form (表单处理)
+- Vite (Build Tool)
+- React Router (Routing)
+- Apollo Client (GraphQL Client)
+- Tailwind CSS (Styling)
+- React Hook Form (Form Handling)
 
-### 后端
+### Backend
 - Django 4.2 + Python 3.11
 - GraphQL (Graphene-Django)
-- PostgreSQL (数据库)
-- Redis (缓存和消息队列)
-- Celery (异步任务)
-- JWT (身份认证)
+- PostgreSQL (Database)
+- Redis (Cache & Message Queue)
+- Celery (Async Tasks)
+- JWT (Authentication)
 
-### 开发环境
+### Development Environment
 - Docker & Docker Compose
 - GitHub Actions (CI/CD)
 
-## 快速开始
+## Quick Start
 
-### 前置要求
-- Docker 和 Docker Compose
-- Node.js 18+ (本地开发)
-- Python 3.11+ (本地开发)
+### Prerequisites
+- Docker and Docker Compose
+- Node.js 18+ (for local development)
+- Python 3.11+ (for local development)
 
-### 使用 Docker 启动 (推荐)
+### Using Docker (Recommended)
 
-1. 克隆项目
+1. Clone the repository
 ```bash
 git clone <repository-url>
 cd casho
 ```
 
-2. 启动所有服务
+2. Start all services
 ```bash
 make dev
-# 或者
+# or
 docker compose up -d
 ```
 
-3. 访问应用
-- 前端: http://localhost:3000
-- 后端 API: http://localhost:8000
-- GraphQL Playground: http://localhost:8000/graphql
+3. Access the application
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000/
+- GraphQL Playground: http://localhost:8000/graphql/
 
-### 本地开发
+### Local Development
 
-1. 启动数据库和 Redis
+1. Start database and Redis
 ```bash
 make db
 ```
 
-2. 启动后端
+2. Start backend
 ```bash
 cd backend
 python -m venv venv
@@ -68,57 +68,127 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-3. 启动前端
+3. Start frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-## 项目结构
+## Project Structure
 
 ```
 casho/
-├── frontend/                 # React 前端
-├── backend/                  # Django 后端
-├── docker compose.yml        # Docker 编排
-├── Makefile                  # 开发命令
+├── frontend/                 # React Frontend
+├── backend/                  # Django Backend
+├── docker compose.yml        # Docker Orchestration
+├── Makefile                  # Development Commands
 ├── .github/                  # GitHub Actions
 └── README.md
 ```
 
-## 开发命令
+## Development Commands
 
 ```bash
-make dev          # 启动开发环境
-make test         # 运行所有测试
-make build        # 构建生产版本
-make clean        # 清理 Docker 资源
-make logs         # 查看服务日志
+make dev          # Start development environment
+make test         # Run all tests
+make build        # Build production version
+make clean        # Clean Docker resources
+make logs         # View service logs
 ```
 
-## 测试
+## Testing
 
 ```bash
-# 运行前端测试
+# Run frontend tests
 cd frontend && npm test
 
-# 运行后端测试
+# Run backend tests
 cd backend && python manage.py test
 ```
 
-## 部署
+## Deployment
 
-项目支持部署到 AWS 等云平台，包含必要的 Dockerfile 和环境变量配置。
+The project supports deployment to cloud platforms like AWS, with necessary Dockerfiles and environment variable configurations.
 
-## 贡献
+## Features
 
-1. Fork 项目
-2. 创建功能分支
-3. 提交更改
-4. 推送到分支
-5. 创建 Pull Request
+### Backend (Django + GraphQL)
+- ✅ User authentication system (JWT)
+- ✅ Transaction management
+- ✅ Category management
+- ✅ GraphQL API
+- ✅ REST API
+- ✅ PostgreSQL database
+- ✅ Redis cache and message queue
+- ✅ Celery async tasks
+- ✅ Complete test coverage
 
-## 许可证
+### Frontend (React + TypeScript)
+- ✅ User login/registration
+- ✅ Dashboard statistics
+- ✅ Transaction management
+- ✅ Category management
+- ✅ User profile page
+- ✅ Responsive design (Tailwind CSS)
+- ✅ GraphQL client integration
+
+### Development Environment
+- ✅ Docker Compose orchestration
+- ✅ Hot reload development
+- ✅ Automated testing
+- ✅ GitHub Actions CI/CD
+- ✅ Production environment configuration
+
+## API Endpoints
+
+### REST API
+- `POST /api/register/` - User registration
+- `POST /api/login/` - User login
+- `POST /api/logout/` - User logout
+- `GET /api/profile/` - User profile
+- `GET /api/transactions/` - List transactions
+- `POST /api/transactions/` - Create transaction
+- `GET /api/categories/` - List categories
+- `POST /api/categories/` - Create category
+
+### GraphQL
+- `POST /graphql/` - GraphQL endpoint
+- Playground available at `/graphql/`
+
+## Environment Variables
+
+Copy `env.example` to `.env` and configure:
+
+```bash
+# Django Settings
+DEBUG=True
+SECRET_KEY=your-secret-key-here
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+
+# Database Settings
+POSTGRES_DB=casho_db
+POSTGRES_USER=casho_user
+POSTGRES_PASSWORD=casho_password
+POSTGRES_HOST=casho-postgres-1
+POSTGRES_PORT=5432
+
+# Redis Settings
+REDIS_URL=redis://localhost:6379/0
+
+# Frontend Settings
+REACT_APP_API_URL=http://localhost:8000/
+REACT_APP_GRAPHQL_URL=http://localhost:8000/graphql/
+```
+
+## Contributing
+
+1. Fork the project
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
 
 MIT License

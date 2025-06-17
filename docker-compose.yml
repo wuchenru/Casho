@@ -30,6 +30,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
+    env_file:
+      - .env
     environment:
       - DEBUG=True
       - DATABASE_URL=postgresql://casho_user:casho_password@postgres:5432/casho_db
@@ -53,6 +55,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
+    env_file:
+      - .env
     environment:
       - DEBUG=True
       - DATABASE_URL=postgresql://casho_user:casho_password@postgres:5432/casho_db
@@ -72,6 +76,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
+    env_file:
+      - .env
     environment:
       - DEBUG=True
       - DATABASE_URL=postgresql://casho_user:casho_password@postgres:5432/casho_db
@@ -91,9 +97,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
+    env_file:
+      - .env
     environment:
-      - REACT_APP_API_URL=http://localhost:8000
-      - REACT_APP_GRAPHQL_URL=http://localhost:8000/graphql
+      - REACT_APP_API_URL=http://localhost:8000/
+      - REACT_APP_GRAPHQL_URL=http://localhost:8000/graphql/
     volumes:
       - ./frontend:/app
       - /app/node_modules

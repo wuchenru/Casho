@@ -46,6 +46,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
+    env_file:
+      - .env
     environment:
       - DEBUG=False
       - DATABASE_URL=${DATABASE_URL}
@@ -67,6 +69,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
+    env_file:
+      - .env
     environment:
       - DEBUG=False
       - DATABASE_URL=${DATABASE_URL}
@@ -85,6 +89,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
+    env_file:
+      - .env
     environment:
       - DEBUG=False
       - DATABASE_URL=${DATABASE_URL}
@@ -103,9 +109,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
+    env_file:
+      - .env
     environment:
-      - REACT_APP_API_URL=${REACT_APP_API_URL}
-      - REACT_APP_GRAPHQL_URL=${REACT_APP_GRAPHQL_URL}
+      - REACT_APP_API_URL=${REACT_APP_API_URL}/
+      - REACT_APP_GRAPHQL_URL=${REACT_APP_GRAPHQL_URL}/
     volumes:
       - frontend_build:/app/build
     networks:

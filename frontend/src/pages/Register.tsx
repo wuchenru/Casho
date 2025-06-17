@@ -26,21 +26,26 @@ interface RegisterForm {
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  const [register, { loading, error }] = useMutation(REGISTER_MUTATION);
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterForm>();
+  const [registerUser, { loading, error }] = useMutation(REGISTER_MUTATION);
+  const {
+    register: registerField,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RegisterForm>();
 
   const onSubmit = async (data: RegisterForm) => {
     try {
-      const response = await register({
+      const response = await registerUser({
         variables: {
-          input: data
-        }
+          input: data,
+        },
       });
 
       const { accessToken, refreshToken } = response.data.register;
       localStorage.setItem('access_token', accessToken);
       localStorage.setItem('refresh_token', refreshToken);
-      
+
       navigate('/');
     } catch (err) {
       console.error('注册失败:', err);
@@ -66,7 +71,7 @@ const Register: React.FC = () => {
             <div>
               <label htmlFor="username" className="sr-only">用户名</label>
               <input
-                {...register('username', { required: '用户名是必填项' })}
+                {...registerField('username', { required: '用户名是必填项' })}
                 type="text"
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
                 placeholder="用户名"
@@ -78,12 +83,12 @@ const Register: React.FC = () => {
             <div>
               <label htmlFor="email" className="sr-only">邮箱地址</label>
               <input
-                {...register('email', { 
+                {...registerField('email', {
                   required: '邮箱是必填项',
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: '请输入有效的邮箱地址'
-                  }
+                    message: '请输入有效的邮箱地址',
+                  },
                 })}
                 type="email"
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
@@ -96,12 +101,12 @@ const Register: React.FC = () => {
             <div>
               <label htmlFor="password" className="sr-only">密码</label>
               <input
-                {...register('password', { 
+                {...registerField('password', {
                   required: '密码是必填项',
                   minLength: {
                     value: 6,
-                    message: '密码至少需要6个字符'
-                  }
+                    message: '密码至少需要6个字符',
+                  },
                 })}
                 type="password"
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
@@ -114,9 +119,10 @@ const Register: React.FC = () => {
             <div>
               <label htmlFor="password_confirm" className="sr-only">确认密码</label>
               <input
-                {...register('password_confirm', { 
+                {...registerField('password_confirm', {
                   required: '请确认密码',
-                  validate: value => value === watch('password') || '密码不匹配'
+                  validate: (value: string) =>
+                    value === watch('password') || '密码不匹配',
                 })}
                 type="password"
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
@@ -149,4 +155,4 @@ const Register: React.FC = () => {
   );
 };
 
-export default Register; 
+export default Register;

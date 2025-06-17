@@ -17,6 +17,8 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0').split(',')
 
+APPEND_SLASH = False
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -76,7 +78,7 @@ DATABASES = {
         'NAME': config('POSTGRES_DB', default='casho_db'),
         'USER': config('POSTGRES_USER', default='casho_user'),
         'PASSWORD': config('POSTGRES_PASSWORD', default='casho_password'),
-        'HOST': config('POSTGRES_HOST', default='localhost'),
+        'HOST': config('POSTGRES_HOST', default='casho-postgres-1'),
         'PORT': config('POSTGRES_PORT', default='5432'),
     }
 }
