@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-casho_db}
+      POSTGRES_USER: ${POSTGRES_USER:-casho_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-casho_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - casho_network
+    restart: unless-stopped
+
+  # Redis 缓存和消息队列
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    networks:
+      - casho_network
+    restart: unless-stopped
+
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - frontend_build:/usr/share/nginx/html
+      - backend_static:/usr/share/nginx/static
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - casho_network
+    restart: unless-stopped
+
+  # Django 后端
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    environment:
+      - DEBUG=False
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+    volumes:
+      - backend_static:/app/staticfiles
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - casho_network
+    restart: unless-stopped
+    command: gunicorn casho.wsgi:application --bind 0.0.0.0:8000 --workers 4
+
+  # Celery 工作进程
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    environment:
+      - DEBUG=False
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - casho_network
+    restart: unless-stopped
+    command: celery -A casho worker -l info
+
+  # Celery Beat 调度器
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    environment:
+      - DEBUG=False
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - casho_network
+    restart: unless-stopped
+    command: celery -A casho beat -l info
+
+  # React 前端构建
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    environment:
+      - REACT_APP_API_URL=${REACT_APP_API_URL}
+      - REACT_APP_GRAPHQL_URL=${REACT_APP_GRAPHQL_URL}
+    volumes:
+      - frontend_build:/app/build
+    networks:
+      - casho_network
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_static:
+  frontend_build:
+
+networks:
+  casho_network:
+    driver: bridge 

@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: casho_db
+      POSTGRES_USER: casho_user
+      POSTGRES_PASSWORD: casho_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - casho_network
+
+  # Redis 缓存和消息队列
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - casho_network
+
+  # Django 后端
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgresql://casho_user:casho_password@postgres:5432/casho_db
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=your-secret-key-here
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+    volumes:
+      - ./backend:/app
+      - backend_static:/app/staticfiles
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - casho_network
+    command: python manage.py runserver 0.0.0.0:8000
+
+  # Celery 工作进程
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgresql://casho_user:casho_password@postgres:5432/casho_db
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=your-secret-key-here
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - casho_network
+    command: celery -A casho worker -l info
+
+  # Celery Beat 调度器
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgresql://casho_user:casho_password@postgres:5432/casho_db
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=your-secret-key-here
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - casho_network
+    command: celery -A casho beat -l info
+
+  # React 前端
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_GRAPHQL_URL=http://localhost:8000/graphql
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - casho_network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_static:
+
+networks:
+  casho_network:
+    driver: bridge 
