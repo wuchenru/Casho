@@ -138,6 +138,8 @@ GRAPHENE = {
     'MIDDLEWARE': [
         'graphene_django.debug.DjangoDebugMiddleware',
     ],
+    'SCHEMA_OUTPUT': 'schema.json',
+    'SCHEMA_INDENT': 2,
 }
 
 # CORS settings

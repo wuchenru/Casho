@@ -5,26 +5,26 @@ User = get_user_model()
 
 
 class Category(models.Model):
-    """交易分类"""
+    """Transaction Category"""
     INCOME = 'income'
     EXPENSE = 'expense'
     
     TYPE_CHOICES = [
-        (INCOME, '收入'),
-        (EXPENSE, '支出'),
+        (INCOME, 'Income'),
+        (EXPENSE, 'Expense'),
     ]
     
-    name = models.CharField(max_length=100, verbose_name='分类名称')
-    type = models.CharField(max_length=10, choices=TYPE_CHOICES, verbose_name='类型')
-    icon = models.CharField(max_length=50, blank=True, verbose_name='图标')
-    color = models.CharField(max_length=7, default='#000000', verbose_name='颜色')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='用户')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    name = models.CharField(max_length=100, verbose_name='Category Name')
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, verbose_name='Type')
+    icon = models.CharField(max_length=50, blank=True, verbose_name='Icon')
+    color = models.CharField(max_length=7, default='#000000', verbose_name='Color')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='User')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created At')
     
     class Meta:
         db_table = 'categories'
-        verbose_name = '分类'
-        verbose_name_plural = '分类'
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
         unique_together = ['name', 'user', 'type']
     
     def __str__(self):
@@ -32,35 +32,35 @@ class Category(models.Model):
 
 
 class Transaction(models.Model):
-    """交易记录"""
+    """Transaction Record"""
     INCOME = 'income'
     EXPENSE = 'expense'
     
     TYPE_CHOICES = [
-        (INCOME, '收入'),
-        (EXPENSE, '支出'),
+        (INCOME, 'Income'),
+        (EXPENSE, 'Expense'),
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='用户')
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='分类')
-    type = models.CharField(max_length=10, choices=TYPE_CHOICES, verbose_name='类型')
-    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='金额')
-    description = models.CharField(max_length=200, blank=True, verbose_name='描述')
-    date = models.DateField(verbose_name='交易日期')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='User')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Category')
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, verbose_name='Type')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Amount')
+    description = models.CharField(max_length=200, blank=True, verbose_name='Description')
+    date = models.DateField(verbose_name='Transaction Date')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created At')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Updated At')
     
     class Meta:
         db_table = 'transactions'
-        verbose_name = '交易记录'
-        verbose_name_plural = '交易记录'
+        verbose_name = 'Transaction'
+        verbose_name_plural = 'Transactions'
         ordering = ['-date', '-created_at']
     
     def __str__(self):
         return f"{self.user.username} - {self.amount} - {self.description}"
     
     def save(self, *args, **kwargs):
-        # 自动设置类型为分类的类型
+        # Automatically set type to category type
         if not self.type:
             self.type = self.category.type
         super().save(*args, **kwargs) 

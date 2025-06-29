@@ -38,7 +38,12 @@ const Register: React.FC = () => {
     try {
       const response = await registerUser({
         variables: {
-          input: data,
+          input: {
+            username: data.username,
+            email: data.email,
+            password: data.password,
+            passwordConfirm: data.password_confirm
+          },
         },
       });
 
@@ -48,7 +53,7 @@ const Register: React.FC = () => {
 
       navigate('/');
     } catch (err) {
-      console.error('注册失败:', err);
+      console.error('Registration failed:', err);
     }
   };
 
@@ -57,76 +62,76 @@ const Register: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            注册新账户
+            Create a new account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            或者{' '}
+            Or{' '}
             <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
-              登录现有账户
+              sign in to existing account
             </Link>
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="username" className="sr-only">用户名</label>
+              <label htmlFor="username" className="sr-only">Username</label>
               <input
-                {...registerField('username', { required: '用户名是必填项' })}
+                {...registerField('username', { required: 'Username is required' })}
                 type="text"
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="用户名"
+                placeholder="Username"
               />
               {errors.username && (
                 <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
               )}
             </div>
             <div>
-              <label htmlFor="email" className="sr-only">邮箱地址</label>
+              <label htmlFor="email" className="sr-only">Email address</label>
               <input
                 {...registerField('email', {
-                  required: '邮箱是必填项',
+                  required: 'Email is required',
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: '请输入有效的邮箱地址',
+                    message: 'Please enter a valid email address',
                   },
                 })}
                 type="email"
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="邮箱地址"
+                placeholder="Email address"
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
               )}
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">密码</label>
+              <label htmlFor="password" className="sr-only">Password</label>
               <input
                 {...registerField('password', {
-                  required: '密码是必填项',
+                  required: 'Password is required',
                   minLength: {
                     value: 6,
-                    message: '密码至少需要6个字符',
+                    message: 'Password must be at least 6 characters',
                   },
                 })}
                 type="password"
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="密码"
+                placeholder="Password"
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
               )}
             </div>
             <div>
-              <label htmlFor="password_confirm" className="sr-only">确认密码</label>
+              <label htmlFor="password_confirm" className="sr-only">Confirm password</label>
               <input
                 {...registerField('password_confirm', {
-                  required: '请确认密码',
+                  required: 'Please confirm your password',
                   validate: (value: string) =>
-                    value === watch('password') || '密码不匹配',
+                    value === watch('password') || 'Passwords do not match',
                 })}
                 type="password"
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="确认密码"
+                placeholder="Confirm password"
               />
               {errors.password_confirm && (
                 <p className="mt-1 text-sm text-red-600">{errors.password_confirm.message}</p>
@@ -146,7 +151,7 @@ const Register: React.FC = () => {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
             >
-              {loading ? '注册中...' : '注册'}
+              {loading ? 'Creating account...' : 'Create account'}
             </button>
           </div>
         </form>

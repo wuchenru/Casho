@@ -23,15 +23,39 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/" element={
               <PrivateRoute>
-                <Layout />
+                <Layout>
+                  <Dashboard />
+                </Layout>
               </PrivateRoute>
-            }>
-              <Route index element={<Dashboard />} />
-              <Route path="transactions" element={<Transactions />} />
-              <Route path="add-transaction" element={<AddTransaction />} />
-              <Route path="categories" element={<Categories />} />
-              <Route path="profile" element={<Profile />} />
-            </Route>
+            } />
+            <Route path="/transactions" element={
+              <PrivateRoute>
+                <Layout>
+                  <Transactions />
+                </Layout>
+              </PrivateRoute>
+            } />
+            <Route path="/add-transaction" element={
+              <PrivateRoute>
+                <Layout>
+                  <AddTransaction />
+                </Layout>
+              </PrivateRoute>
+            } />
+            <Route path="/categories" element={
+              <PrivateRoute>
+                <Layout>
+                  <Categories />
+                </Layout>
+              </PrivateRoute>
+            } />
+            <Route path="/profile" element={
+              <PrivateRoute>
+                <Layout>
+                  <Profile />
+                </Layout>
+              </PrivateRoute>
+            } />
           </Routes>
         </div>
       </Router>

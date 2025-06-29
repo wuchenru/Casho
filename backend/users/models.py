@@ -3,7 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    """自定义用户模型"""
+    """Custom User Model"""
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
@@ -15,8 +15,8 @@ class User(AbstractUser):
 
     class Meta:
         db_table = 'users'
-        verbose_name = '用户'
-        verbose_name_plural = '用户'
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
 
     def __str__(self):
         return self.email 

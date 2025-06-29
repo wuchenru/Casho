@@ -54,28 +54,28 @@ const Categories: React.FC = () => {
       setShowForm(false);
       refetch();
     } catch (err) {
-      console.error('创建分类失败:', err);
+      console.error('Failed to create category:', err);
     }
   };
 
-  if (loading) return <div className="text-center">加载中...</div>;
-  if (error) return <div className="text-red-600">加载失败: {error.message}</div>;
+  if (loading) return <div className="text-center">Loading...</div>;
+  if (error) return <div className="text-red-600">Failed to load: {error.message}</div>;
 
   const categories = data?.categories || [];
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">分类管理</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
         <button
           onClick={() => setShowForm(true)}
           className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
         >
-          添加分类
+          Add Category
         </button>
       </div>
 
-      {/* 过滤器 */}
+      {/* Filters */}
       <div className="bg-white shadow rounded-lg p-4">
         <div className="flex space-x-4">
           <button
@@ -86,7 +86,7 @@ const Categories: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            全部
+            All
           </button>
           <button
             onClick={() => setTypeFilter('income')}
@@ -96,7 +96,7 @@ const Categories: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            收入
+            Income
           </button>
           <button
             onClick={() => setTypeFilter('expense')}
@@ -106,19 +106,19 @@ const Categories: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            支出
+            Expense
           </button>
         </div>
       </div>
 
-      {/* 添加分类表单 */}
+      {/* Add Category Form */}
       {showForm && (
         <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">添加新分类</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Category</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">分类名称</label>
+                <label className="block text-sm font-medium text-gray-700">Category Name</label>
                 <input
                   type="text"
                   value={formData.name}
@@ -128,18 +128,18 @@ const Categories: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">类型</label>
+                <label className="block text-sm font-medium text-gray-700">Type</label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 >
-                  <option value="expense">支出</option>
-                  <option value="income">收入</option>
+                  <option value="expense">Expense</option>
+                  <option value="income">Income</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">图标</label>
+                <label className="block text-sm font-medium text-gray-700">Icon</label>
                 <input
                   type="text"
                   value={formData.icon}
@@ -149,7 +149,7 @@ const Categories: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">颜色</label>
+                <label className="block text-sm font-medium text-gray-700">Color</label>
                 <input
                   type="color"
                   value={formData.color}
@@ -164,21 +164,21 @@ const Categories: React.FC = () => {
                 onClick={() => setShowForm(false)}
                 className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                取消
+                Cancel
               </button>
               <button
                 type="submit"
                 disabled={creating}
                 className="bg-primary-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-primary-700 disabled:opacity-50"
               >
-                {creating ? '创建中...' : '创建'}
+                {creating ? 'Creating...' : 'Create'}
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* 分类列表 */}
+      {/* Category List */}
       <div className="bg-white shadow overflow-hidden sm:rounded-md">
         <ul className="divide-y divide-gray-200">
           {categories.map((category: any) => (
@@ -197,12 +197,14 @@ const Categories: React.FC = () => {
                         {category.name}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {category.type === 'income' ? '收入' : '支出'}
+                        {category.type === 'income' ? 'Income' : 'Expense'}
                       </p>
                     </div>
                   </div>
-                  <div className="text-sm text-gray-500">
-                    {new Date(category.createdAt).toLocaleDateString('zh-CN')}
+                  <div className="text-right">
+                    <p className="text-sm text-gray-500">
+                      {new Date(category.createdAt).toLocaleDateString('en-US')}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -212,12 +214,12 @@ const Categories: React.FC = () => {
         
         {categories.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">暂无分类</p>
+            <p className="text-gray-500">No categories found</p>
             <button
               onClick={() => setShowForm(true)}
-              className="mt-2 text-primary-600 hover:text-primary-500"
+              className="mt-2 inline-block text-primary-600 hover:text-primary-500"
             >
-              添加第一个分类
+              Create your first category
             </button>
           </div>
         )}

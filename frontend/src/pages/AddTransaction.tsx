@@ -58,7 +58,7 @@ const AddTransaction: React.FC = () => {
       
       navigate('/transactions');
     } catch (err) {
-      console.error('创建交易失败:', err);
+      console.error('Failed to create transaction:', err);
     }
   };
 
@@ -67,14 +67,14 @@ const AddTransaction: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">添加交易</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Add Transaction</h1>
       </div>
 
       <div className="bg-white shadow rounded-lg p-6">
-        {/* 交易类型选择 */}
+        {/* Transaction Type Selection */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            交易类型
+            Transaction Type
           </label>
           <div className="flex space-x-4">
             <button
@@ -86,7 +86,7 @@ const AddTransaction: React.FC = () => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              支出
+              Expense
             </button>
             <button
               type="button"
@@ -97,22 +97,22 @@ const AddTransaction: React.FC = () => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              收入
+              Income
             </button>
           </div>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* 分类选择 */}
+          {/* Category Selection */}
           <div>
             <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-              分类
+              Category
             </label>
             <select
-              {...register('category_id', { required: '请选择分类' })}
+              {...register('category_id', { required: 'Please select a category' })}
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
             >
-              <option value="">请选择分类</option>
+              <option value="">Please select a category</option>
               {categories.map((category: any) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -124,19 +124,19 @@ const AddTransaction: React.FC = () => {
             )}
           </div>
 
-          {/* 金额 */}
+          {/* Amount */}
           <div>
             <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-              金额
+              Amount
             </label>
             <div className="mt-1 relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span className="text-gray-500 sm:text-sm">¥</span>
+                <span className="text-gray-500 sm:text-sm">$</span>
               </div>
               <input
                 {...register('amount', { 
-                  required: '请输入金额',
-                  min: { value: 0.01, message: '金额必须大于0' }
+                  required: 'Please enter amount',
+                  min: { value: 0.01, message: 'Amount must be greater than 0' }
                 })}
                 type="number"
                 step="0.01"
@@ -149,26 +149,26 @@ const AddTransaction: React.FC = () => {
             )}
           </div>
 
-          {/* 描述 */}
+          {/* Description */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              描述
+              Description
             </label>
             <input
               {...register('description')}
               type="text"
               className="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-              placeholder="交易描述（可选）"
+              placeholder="Transaction description (optional)"
             />
           </div>
 
-          {/* 日期 */}
+          {/* Date */}
           <div>
             <label htmlFor="date" className="block text-sm font-medium text-gray-700">
-              日期
+              Date
             </label>
             <input
-              {...register('date', { required: '请选择日期' })}
+              {...register('date', { required: 'Please select a date' })}
               type="date"
               className="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
               defaultValue={new Date().toISOString().split('T')[0]}
@@ -184,21 +184,21 @@ const AddTransaction: React.FC = () => {
             </div>
           )}
 
-          {/* 提交按钮 */}
+          {/* Submit Buttons */}
           <div className="flex justify-end space-x-3">
             <button
               type="button"
               onClick={() => navigate('/transactions')}
               className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
-              取消
+              Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
               className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
             >
-              {loading ? '保存中...' : '保存'}
+              {loading ? 'Creating...' : 'Create Transaction'}
             </button>
           </div>
         </form>

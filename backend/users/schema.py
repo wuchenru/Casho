@@ -38,7 +38,7 @@ class Register(graphene.Mutation):
 
     def mutate(self, info, input):
         if input.password != input.password_confirm:
-            raise Exception("密码不匹配")
+            raise Exception("Passwords do not match")
         
         user = User.objects.create_user(
             username=input.username,
@@ -64,7 +64,7 @@ class Login(graphene.Mutation):
     def mutate(self, info, input):
         user = authenticate(username=input.email, password=input.password)
         if not user:
-            raise Exception("邮箱或密码错误")
+            raise Exception("Invalid email or password")
         
         refresh = RefreshToken.for_user(user)
         

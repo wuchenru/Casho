@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # PostgreSQL 数据库
+  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     environment:
@@ -14,8 +14,13 @@ services:
       - "5432:5432"
     networks:
       - casho_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U casho_user -d casho_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # Redis 缓存和消息队列
+  # Redis Cache and Message Queue
   redis:
     image: redis:7-alpine
     ports:
@@ -24,8 +29,13 @@ services:
       - redis_data:/data
     networks:
       - casho_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # Django 后端
+  # Django Backend
   backend:
     build:
       context: ./backend
@@ -44,13 +54,15 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - casho_network
-    command: python manage.py runserver 0.0.0.0:8000
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
-  # Celery 工作进程
+  # Celery Worker
   celery:
     build:
       context: ./backend
@@ -65,13 +77,15 @@ services:
     volumes:
       - ./backend:/app
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - casho_network
     command: celery -A casho worker -l info
 
-  # Celery Beat 调度器
+  # Celery Beat Scheduler
   celery-beat:
     build:
       context: ./backend
@@ -86,13 +100,15 @@ services:
     volumes:
       - ./backend:/app
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - casho_network
     command: celery -A casho beat -l info
 
-  # React 前端
+  # React Frontend
   frontend:
     build:
       context: ./frontend
@@ -108,7 +124,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     networks:
       - casho_network
     command: npm run dev

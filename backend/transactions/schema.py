@@ -1,38 +1,20 @@
 import graphene
 from graphene_django import DjangoObjectType
-from django.db.models import Sum
-from django.utils import timezone
-from datetime import timedelta
-
+from django.db.models import Sum, Q
+from datetime import datetime, timedelta
 from .models import Category, Transaction
 
 
 class CategoryType(DjangoObjectType):
     class Meta:
         model = Category
-        fields = ['id', 'name', 'type', 'icon', 'color', 'created_at']
+        fields = '__all__'
 
 
 class TransactionType(DjangoObjectType):
-    category_name = graphene.String()
-    category_icon = graphene.String()
-    category_color = graphene.String()
-    
     class Meta:
         model = Transaction
-        fields = [
-            'id', 'category', 'type', 'amount', 'description', 
-            'date', 'created_at', 'updated_at'
-        ]
-    
-    def resolve_category_name(self, info):
-        return self.category.name
-    
-    def resolve_category_icon(self, info):
-        return self.category.icon
-    
-    def resolve_category_color(self, info):
-        return self.category.color
+        fields = '__all__'
 
 
 class CategoryInput(graphene.InputObjectType):
@@ -43,10 +25,17 @@ class CategoryInput(graphene.InputObjectType):
 
 
 class TransactionInput(graphene.InputObjectType):
-    category_id = graphene.Int(required=True)
+    category_id = graphene.ID(required=True)
     amount = graphene.Decimal(required=True)
     description = graphene.String()
     date = graphene.Date(required=True)
+
+
+class StatsType(graphene.ObjectType):
+    total_income = graphene.Decimal()
+    total_expense = graphene.Decimal()
+    balance = graphene.Decimal()
+    category_stats = graphene.JSONString()
 
 
 class CreateCategory(graphene.Mutation):
@@ -58,7 +47,7 @@ class CreateCategory(graphene.Mutation):
     def mutate(self, info, input):
         user = info.context.user
         if not user.is_authenticated:
-            raise Exception("用户未登录")
+            raise Exception("User not logged in")
         
         category = Category.objects.create(
             user=user,
@@ -79,12 +68,12 @@ class CreateTransaction(graphene.Mutation):
     def mutate(self, info, input):
         user = info.context.user
         if not user.is_authenticated:
-            raise Exception("用户未登录")
+            raise Exception("User not logged in")
         
         try:
             category = Category.objects.get(id=input.category_id, user=user)
         except Category.DoesNotExist:
-            raise Exception("分类不存在")
+            raise Exception("Category does not exist")
         
         transaction = Transaction.objects.create(
             user=user,
@@ -96,22 +85,15 @@ class CreateTransaction(graphene.Mutation):
         return transaction
 
 
-class StatsType(graphene.ObjectType):
-    period = graphene.String()
-    income_total = graphene.Float()
-    expense_total = graphene.Float()
-    balance = graphene.Float()
-    category_stats = graphene.List(graphene.JSONString)
-
-
 class Query(graphene.ObjectType):
     categories = graphene.List(CategoryType, type=graphene.String())
-    transactions = graphene.List(
-        TransactionType, 
-        type=graphene.String(),
-        category_id=graphene.Int()
-    )
-    transaction_stats = graphene.Field(StatsType, period=graphene.String())
+    transactions = graphene.List(TransactionType, 
+                                start_date=graphene.Date(), 
+                                end_date=graphene.Date(),
+                                category_id=graphene.ID())
+    stats = graphene.Field(StatsType, 
+                          start_date=graphene.Date(), 
+                          end_date=graphene.Date())
 
     def resolve_categories(self, info, type=None):
         user = info.context.user
@@ -123,59 +105,57 @@ class Query(graphene.ObjectType):
             queryset = queryset.filter(type=type)
         return queryset
 
-    def resolve_transactions(self, info, type=None, category_id=None):
+    def resolve_transactions(self, info, start_date=None, end_date=None, category_id=None):
         user = info.context.user
         if not user.is_authenticated:
             return []
         
         queryset = Transaction.objects.filter(user=user)
-        if type:
-            queryset = queryset.filter(type=type)
+        
+        if start_date:
+            queryset = queryset.filter(date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(date__lte=end_date)
         if category_id:
             queryset = queryset.filter(category_id=category_id)
+        
         return queryset.order_by('-date', '-created_at')
 
-    def resolve_transaction_stats(self, info, period='month'):
+    def resolve_stats(self, info, start_date=None, end_date=None):
         user = info.context.user
         if not user.is_authenticated:
             return None
         
-        # 计算时间范围
-        now = timezone.now().date()
-        if period == 'week':
-            start_date = now - timedelta(days=7)
-        elif period == 'month':
-            start_date = now - timedelta(days=30)
-        elif period == 'year':
-            start_date = now - timedelta(days=365)
-        else:
-            start_date = now - timedelta(days=30)
+        # Calculate time range
+        if not start_date:
+            start_date = datetime.now().date() - timedelta(days=30)
+        if not end_date:
+            end_date = datetime.now().date()
         
-        # 获取统计数据
+        # Get statistics
         transactions = Transaction.objects.filter(
             user=user,
-            date__gte=start_date,
-            date__lte=now
+            date__range=[start_date, end_date]
         )
         
-        income_total = transactions.filter(type='income').aggregate(
-            total=Sum('amount')
-        )['total'] or 0
+        total_income = transactions.filter(type='income').aggregate(
+            total=Sum('amount'))['total'] or 0
+        total_expense = transactions.filter(type='expense').aggregate(
+            total=Sum('amount'))['total'] or 0
+        balance = total_income - total_expense
         
-        expense_total = transactions.filter(type='expense').aggregate(
-            total=Sum('amount')
-        )['total'] or 0
-        
-        # 按分类统计
-        category_stats = list(transactions.values('category__name', 'type').annotate(
-            total=Sum('amount')
-        ).order_by('-total'))
+        # Statistics by category
+        category_stats = {}
+        for category in Category.objects.filter(user=user):
+            category_total = transactions.filter(category=category).aggregate(
+                total=Sum('amount'))['total'] or 0
+            if category_total > 0:
+                category_stats[category.name] = float(category_total)
         
         return StatsType(
-            period=period,
-            income_total=float(income_total),
-            expense_total=float(expense_total),
-            balance=float(income_total - expense_total),
+            total_income=total_income,
+            total_expense=total_expense,
+            balance=balance,
             category_stats=category_stats
         )
 

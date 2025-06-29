@@ -10,14 +10,14 @@ from .models import User
 
 
 class RegisterView(generics.CreateAPIView):
-    """用户注册视图"""
+    """User Registration View"""
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
 
 
 class LoginView(generics.GenericAPIView):
-    """用户登录视图"""
+    """User Login View"""
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 
@@ -36,7 +36,7 @@ class LoginView(generics.GenericAPIView):
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
-    """用户资料视图"""
+    """User Profile View"""
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
@@ -47,11 +47,11 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout(request):
-    """用户登出视图"""
+    """User Logout View"""
     try:
-        refresh_token = request.data["refresh"]
+        refresh_token = request.data.get('refresh_token')
         token = RefreshToken(refresh_token)
         token.blacklist()
-        return Response({"message": "登出成功"}, status=status.HTTP_200_OK)
+        return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
     except Exception:
-        return Response({"message": "登出失败"}, status=status.HTTP_400_BAD_REQUEST) 
+        return Response({"message": "Logout failed"}, status=status.HTTP_400_BAD_REQUEST) 

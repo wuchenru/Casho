@@ -6,7 +6,7 @@ from transactions.schema import Query as TransactionQuery, Mutation as Transacti
 
 
 class Query(UserQuery, TransactionQuery, graphene.ObjectType):
-    debug = graphene.Field(DjangoDebug, name='__debug')
+    debug = graphene.Field(DjangoDebug, name='debug')
 
 
 class Mutation(UserMutation, TransactionMutation, graphene.ObjectType):
