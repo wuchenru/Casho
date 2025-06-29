@@ -91,9 +91,10 @@ casho/
 
 ```bash
 make dev          # Start development environment
+make stop         # Stop services but keep data
 make test         # Run all tests
 make build        # Build production version
-make clean        # Clean Docker resources
+make clean        # Clean Docker resources (removes data)
 make logs         # View service logs
 ```
 
@@ -114,31 +115,31 @@ The project supports deployment to cloud platforms like AWS, with necessary Dock
 ## Features
 
 ### Backend (Django + GraphQL)
-- ✅ User authentication system (JWT)
-- ✅ Transaction management
-- ✅ Category management
-- ✅ GraphQL API
-- ✅ REST API
-- ✅ PostgreSQL database
-- ✅ Redis cache and message queue
-- ✅ Celery async tasks
-- ✅ Complete test coverage
+- User authentication system (JWT)
+- Transaction management
+- Category management
+- GraphQL API
+- REST API
+- PostgreSQL database
+- Redis cache and message queue
+- Celery async tasks
+- Complete test coverage
 
 ### Frontend (React + TypeScript)
-- ✅ User login/registration
-- ✅ Dashboard statistics
-- ✅ Transaction management
-- ✅ Category management
-- ✅ User profile page
-- ✅ Responsive design (Tailwind CSS)
-- ✅ GraphQL client integration
+- User login/registration
+- Dashboard statistics
+- Transaction management
+- Category management
+- User profile page
+- Responsive design (Tailwind CSS)
+- GraphQL client integration
 
 ### Development Environment
-- ✅ Docker Compose orchestration
-- ✅ Hot reload development
-- ✅ Automated testing
-- ✅ GitHub Actions CI/CD
-- ✅ Production environment configuration
+- Docker Compose orchestration
+- Hot reload development
+- Automated testing
+- GitHub Actions CI/CD
+- Production environment configuration
 
 ## API Endpoints
 
