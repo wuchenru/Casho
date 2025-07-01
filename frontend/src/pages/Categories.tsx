@@ -40,7 +40,9 @@ const Categories: React.FC = () => {
     variables: { type: typeFilter || null }
   });
 
-  const [createCategory, { loading: creating }] = useMutation(CREATE_CATEGORY);
+  const [createCategory, { loading: creating }] = useMutation(CREATE_CATEGORY, {
+    refetchQueries: [{ query: GET_CATEGORIES, variables: { type: typeFilter || null } }],
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { gql, useMutation, useQuery } from '@apollo/client';
@@ -41,12 +41,17 @@ const AddTransaction: React.FC = () => {
   const navigate = useNavigate();
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense');
   
-  const { data: categoriesData } = useQuery(GET_CATEGORIES, {
-    variables: { type: transactionType }
+  const { data: categoriesData, refetch: refetchCategories } = useQuery(GET_CATEGORIES, {
+    variables: { type: transactionType },
+    fetchPolicy: 'network-only',
   });
   
   const [createTransaction, { loading, error }] = useMutation(CREATE_TRANSACTION);
   const { register, handleSubmit, formState: { errors } } = useForm<TransactionForm>();
+
+  useEffect(() => {
+    refetchCategories();
+  }, [transactionType, refetchCategories]);
 
   const onSubmit = async (data: TransactionForm) => {
     try {

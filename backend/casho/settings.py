@@ -136,11 +136,17 @@ REST_FRAMEWORK = {
 GRAPHENE = {
     'SCHEMA': 'casho.schema.schema',
     'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
         'graphene_django.debug.DjangoDebugMiddleware',
     ],
     'SCHEMA_OUTPUT': 'schema.json',
     'SCHEMA_INDENT': 2,
 }
+
+AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [

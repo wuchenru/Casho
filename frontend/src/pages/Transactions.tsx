@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Link } from 'react-router-dom';
+import { useCurrency } from '../components/CurrencyContext';
 
 const GET_TRANSACTIONS = gql`
   query GetTransactions($startDate: Date, $endDate: Date, $categoryId: ID) {
@@ -30,6 +31,7 @@ const Transactions: React.FC = () => {
       categoryId: categoryFilter || null 
     }
   });
+  const { currency, rates } = useCurrency();
 
   if (loading) return <div className="text-center">Loading...</div>;
   if (error) return <div className="text-red-600">Failed to load: {error.message}</div>;
@@ -86,42 +88,24 @@ const Transactions: React.FC = () => {
 
       {/* Transaction List */}
       <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul className="divide-y divide-gray-200">
-          {transactions.map((transaction: any) => (
-            <li key={transaction.id}>
-              <div className="px-4 py-4 sm:px-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div 
-                      className="w-8 h-8 rounded-full flex items-center justify-center mr-3"
-                      style={{ backgroundColor: transaction.category?.color || '#3b82f6' }}
-                    >
-                      <span className="text-white text-sm">{transaction.category?.icon || '💰'}</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {transaction.category?.name || 'Unknown Category'}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {transaction.description || 'No description'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className={`text-sm font-medium ${
-                      transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {transaction.type === 'income' ? '+' : '-'}${parseFloat(transaction.amount).toFixed(2)}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {new Date(transaction.date).toLocaleDateString('en-US')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <table className="w-full">
+          <thead>
+            <tr>
+              <th className="text-left py-2">Description</th>
+              <th className="text-right py-2">Amount ({currency})</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((transaction: any) => (
+              <tr key={transaction.id}>
+                <td className="py-2">{transaction.description || 'No description'}</td>
+                <td className="py-2 text-right">
+                  {(rates[currency] ? parseFloat(transaction.amount) * rates[currency] : parseFloat(transaction.amount)).toLocaleString(undefined, { style: 'currency', currency })}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
         
         {transactions.length === 0 && (
           <div className="text-center py-12">

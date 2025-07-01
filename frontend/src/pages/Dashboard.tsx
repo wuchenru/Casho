@@ -1,6 +1,7 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Link } from 'react-router-dom';
+import { useCurrency } from '../components/CurrencyContext';
 
 const GET_TRANSACTION_STATS = gql`
   query GetTransactionStats($startDate: Date, $endDate: Date) {
@@ -13,18 +14,37 @@ const GET_TRANSACTION_STATS = gql`
   }
 `;
 
+const GET_ACCOUNTS = gql`
+  query GetAccounts {
+    accounts {
+      id
+      name
+      currency
+      balance
+    }
+  }
+`;
+
 const Dashboard: React.FC = () => {
+  const { currency, rates } = useCurrency();
   const { loading, error, data } = useQuery(GET_TRANSACTION_STATS, {
     variables: { 
       startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       endDate: new Date().toISOString().split('T')[0]
     }
   });
+  const { data: accountsData, loading: accountsLoading, error: accountsError } = useQuery(GET_ACCOUNTS);
 
-  if (loading) return <div className="text-center">Loading...</div>;
-  if (error) return <div className="text-red-600">Failed to load: {error.message}</div>;
+  if (loading || accountsLoading) return <div className="text-center">Loading...</div>;
+  if (error || accountsError) return <div className="text-red-600">Failed to load: {(error || accountsError)?.message}</div>;
 
   const stats = data?.stats;
+  const accounts = accountsData?.accounts || [];
+  // 多币种总资产计算
+  const totalAssets = accounts.reduce((sum: number, acc: any) => {
+    const rate = rates[currency] && rates[acc.currency] ? rates[currency] / rates[acc.currency] : 1;
+    return sum + parseFloat(acc.balance) * rate;
+  }, 0);
 
   return (
     <div className="space-y-6">
@@ -36,6 +56,12 @@ const Dashboard: React.FC = () => {
         >
           Add Transaction
         </Link>
+      </div>
+
+      <div className="bg-white rounded shadow p-6 mb-6">
+        <div className="text-gray-500">Total Assets</div>
+        <div className="text-3xl font-bold">{totalAssets.toLocaleString(undefined, { style: 'currency', currency })}</div>
+        <div className="text-sm text-gray-400 mt-1">All accounts converted to {currency}</div>
       </div>
 
       {/* Statistics Cards */}

@@ -27,4 +27,6 @@ export const client = new ApolloClient({
       errorPolicy: 'all',
     },
   },
-}); 
+});
+
+// TODO: Add CurrencyContext for global currency and exchange rate management 

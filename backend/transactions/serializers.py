@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Transaction
+from .models import Category, Transaction, Account
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -40,3 +40,10 @@ class TransactionCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("分类不存在")
         
         return attrs 
+
+
+class AccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['id', 'name', 'currency', 'balance', 'user', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'user'] 

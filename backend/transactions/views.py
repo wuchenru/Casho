@@ -4,9 +4,9 @@ from django.db.models import Sum
 from django.utils import timezone
 from datetime import timedelta
 
-from .models import Category, Transaction
+from .models import Category, Transaction, Account
 from .serializers import (
-    CategorySerializer, TransactionSerializer, TransactionCreateSerializer
+    CategorySerializer, TransactionSerializer, TransactionCreateSerializer, AccountSerializer
 )
 
 
@@ -104,4 +104,17 @@ class TransactionStatsView(generics.GenericAPIView):
             'expense_total': float(expense_total),
             'balance': float(income_total - expense_total),
             'category_stats': list(category_stats),
-        }) 
+        })
+
+
+class AccountListCreateView(generics.ListCreateAPIView):
+    """Account list and create view"""
+    serializer_class = AccountSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['currency']
+
+    def get_queryset(self):
+        return Account.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user) 

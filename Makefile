@@ -1,4 +1,4 @@
-.PHONY: help dev build test clean logs db frontend backend stop
+.PHONY: help dev build test clean logs db frontend backend stop rebuild-frontend rebuild-backend
 
 help: ## Show help information
 	@echo "Available commands:"
@@ -56,4 +56,12 @@ install: ## Install dependencies
 	docker compose exec backend pip install -r requirements.txt
 
 restart: ## Restart all services
-	docker compose restart 
+	docker compose restart
+
+rebuild-frontend: ## Rebuild and restart only the frontend service
+	docker compose build frontend
+	docker compose up -d frontend
+
+rebuild-backend: ## Rebuild and restart only the backend service
+	docker compose build backend
+	docker compose up -d backend 

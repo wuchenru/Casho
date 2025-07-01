@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import CurrencySelector from './CurrencySelector';
+import { CurrencyProvider, useCurrency } from './CurrencyContext';
 
-const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const LayoutInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { currency, setCurrency } = useCurrency();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -11,7 +14,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen flex flex-col">
+      <header className="flex items-center justify-between px-6 py-4 bg-white shadow">
+        <div className="text-xl font-bold">Casho</div>
+        <div className="flex items-center gap-4">
+          <CurrencySelector value={currency} onChange={setCurrency} />
+          {/* TODO: User avatar/profile */}
+        </div>
+      </header>
       {/* Navigation Bar */}
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -62,11 +72,17 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <main className="flex-1 bg-gray-50 p-6">
         {children}
       </main>
     </div>
   );
 };
+
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <CurrencyProvider>
+    <LayoutInner>{children}</LayoutInner>
+  </CurrencyProvider>
+);
 
 export default Layout; 

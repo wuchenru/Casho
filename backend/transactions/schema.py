@@ -2,7 +2,7 @@ import graphene
 from graphene_django import DjangoObjectType
 from django.db.models import Sum, Q
 from datetime import datetime, timedelta
-from .models import Category, Transaction
+from .models import Category, Transaction, Account
 
 
 class CategoryType(DjangoObjectType):
@@ -14,6 +14,12 @@ class CategoryType(DjangoObjectType):
 class TransactionType(DjangoObjectType):
     class Meta:
         model = Transaction
+        fields = '__all__'
+
+
+class AccountType(DjangoObjectType):
+    class Meta:
+        model = Account
         fields = '__all__'
 
 
@@ -94,6 +100,7 @@ class Query(graphene.ObjectType):
     stats = graphene.Field(StatsType, 
                           start_date=graphene.Date(), 
                           end_date=graphene.Date())
+    accounts = graphene.List(AccountType)
 
     def resolve_categories(self, info, type=None):
         user = info.context.user
@@ -158,6 +165,12 @@ class Query(graphene.ObjectType):
             balance=balance,
             category_stats=category_stats
         )
+
+    def resolve_accounts(self, info):
+        user = info.context.user
+        if not user.is_authenticated:
+            return []
+        return Account.objects.filter(user=user)
 
 
 class Mutation(graphene.ObjectType):
