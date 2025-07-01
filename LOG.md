@@ -48,3 +48,8 @@
 - Test all user flows end-to-end
 - Add loading states and error messages
 - Improve responsive design
+
+## 2025.06.30
+
+### Next Steps
+- Prioritize Plaid API
